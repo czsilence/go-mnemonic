@@ -1,12 +1,12 @@
 package bip39
 
 import (
-	"bufio"
 	"fmt"
 	"log"
 	"math"
-	"os"
 )
+
+var words map[string]*[]string = make(map[string]*[]string)
 
 //we keep all the dics in the memory for fast access
 //lazy inits, and global vars :(
@@ -67,23 +67,11 @@ func dictionary() ([]string, error) {
 	dict[lang] = make([]string, size)
 	reverseDict[lang] = make(map[string]int, size)
 
-	file, err := os.Open("files/" + lang + ".txt")
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
 	i := 0
-	for scanner.Scan() {
-		word := scanner.Text()
+	for _, word := range *words[lang] {
 		dict[lang][i] = word
 		reverseDict[lang][word] = i
 		i++
-	}
-
-	if err = scanner.Err(); err != nil {
-		log.Fatal(err)
 	}
 
 	if i != size {
